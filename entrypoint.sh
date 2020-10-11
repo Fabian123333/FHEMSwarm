@@ -6,10 +6,11 @@ FHEM_CONFIG_PATH="/opt/fhem/conf/"
 cd $FHEM_PATH
 
 ## inital setup
-if [ ! -f "$FHEM_SCRIPT" ]; then
+if [ ! -f $FHEM_SCRIPT ]; then
 	echo "perform initial setup"
 	tar xzf /fhem.tar.gz -C /tmp
 	mv /tmp/fhem-*/* /opt/fhem
+	mv /tmp/fhem-*/FHEM/* /opt/fhem/FHEM
 	rm -r /tmp/fhem-6.0
 	mkdir ${FHEM_CONFIG_PATH}
 	mv "/opt/fhem/fhem.cfg" "${FHEM_CONFIG_PATH}"
@@ -23,7 +24,35 @@ if ! mysql -h db -u fhem -pfhem -e "desc fhem.history"; then
 	done < /opt/fhem/contrib/dblog/db_create_mysql.sql
 fi;
 
+sed -i "s/^attr global backup_before_update.*$//g" ${FHEM_CONFIG_PATH}fhem.cfg
+sed -i "s/^attr global backupdir .*$//g" ${FHEM_CONFIG_PATH}fhem.cfg
+
+if [ ! -z "$FHEM_BACKUP" ]; then
+	echo "enable backup"
+        echo "attr global backup_before_update 1" >> ${FHEM_CONFIG_PATH}fhem.cfg
+        echo "attr global backupdir /backup" >> ${FHEM_CONFIG_PATH}fhem.cfg
+fi
+
+if [ ! -z "$FHEM_AUTOSAVE" ]; then
+	echo "enable autosave"
+	sed -i "s/^attr global autosave .*$//g" ${FHEM_CONFIG_PATH}fhem.cfg
+        echo "attr global autosave $FHEM_AUTOSAVE" >> ${FHEM_CONFIG_PATH}fhem.cfg
+fi
+
+if [ ! -z "$ENABLE_TELNET" ]; then
+	echo "enable telnet"
+	cat ${FHEM_CONFIG_PATH}fhem.cfg | grep "telnetPort telnet" || echo "define telnetPort telnet 23 global" >> ${FHEM_CONFIG_PATH}fhem.cfg
+fi
+
 echo '%dbconfig= ( connection => "mysql:database=fhem;host=db;port=3306", user => "fhem", password => "fhem");' > ${FHEM_CONFIG_PATH}dbLog.conf
+
+        if [ ! -z "$FHEM_BACKUP" ]; then
+                echo "attr global backup_before_update 1" >> ${FHEM_CONFIG_PATH}fhem.cfg
+                echo "attr global backupdir /backup" >> ${FHEM_CONFIG_PATH}fhem.cfg
+        else
+                sed -i "s/^attr global backup_before_update.*$//g" ${FHEM_CONFIG_PATH}fhem.cfg
+                sed -i "s/^attr global backupdir .*$//g" ${FHEM_CONFIG_PATH}fhem.cfg
+        fi
 
 echo "start fhem"
 perl /opt/fhem/fhem.pl "${FHEM_CONFIG_PATH}fhem.cfg"

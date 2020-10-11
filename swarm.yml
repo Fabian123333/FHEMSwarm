@@ -20,6 +20,10 @@ services:
         target: /var/lib/mysql
   web:
     image: 192.168.0.210:5000/fhem-web
+    environment:
+        FHEM_BACKUP: "true"
+        FHEM_AUTOSAVE: 1
+        ENABLE_TELNET: "true"
     ports:
       - 8083:8083
     deploy:           
@@ -43,6 +47,11 @@ services:
         target: /opt/fhem/FHEM
         volume:               
           nocopy: true        
+      - type: volume
+        source: fhem-backup
+        target: /backup
+        volume:
+          nocopy: true
 
 networks:
   net:
@@ -74,4 +83,9 @@ volumes:
       o: bind                    
       type: none                 
       device: /nfsdata/fhem/log 
-                                 
+  fhem-backup:                    
+    driver: local              
+    driver_opts:               
+      o: bind                  
+      type: none               
+      device: /nfsdata/fhem/backup
