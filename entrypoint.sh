@@ -5,17 +5,23 @@ FHEM_CONFIG_PATH="/opt/fhem/conf/"
 
 cd $FHEM_PATH
 
+while [ ! -d $FHEM_CONFIG_PATH ]; do
+	echo "wait for fs initialisation"
+	sleep 2
+done
+
 ## inital setup
-if [ ! -f $FHEM_SCRIPT ]; then
+ls "$FHEM_SCRIPT" 2>/dev/null || {
 	echo "perform initial setup"
 	tar xzf /fhem.tar.gz -C /tmp
-	mv /tmp/fhem-*/* /opt/fhem
-	mv /tmp/fhem-*/FHEM/* /opt/fhem/FHEM
+	rsync -a /tmp/fhem-*/ /opt/fhem/
 	rm -r /tmp/fhem-6.0
-	mkdir ${FHEM_CONFIG_PATH}
-	mv "/opt/fhem/fhem.cfg" "${FHEM_CONFIG_PATH}"
-	echo "define dbLog DbLog ${FHEM_CONFIG_PATH}dbLog.conf .*:.*" >> ${FHEM_CONFIG_PATH}fhem.cfg
-fi
+	ls "${FHEM_CONFIG_PATH}fhem.cfg" || {
+		echo "create new config"
+		mv "/opt/fhem/fhem.cfg" "${FHEM_CONFIG_PATH}"
+		echo "define logdb DbLog ${FHEM_CONFIG_PATH}dbLog.conf .*:.*" >> ${FHEM_CONFIG_PATH}fhem.cfg
+	}
+}
 
 if ! mysql -h db -u fhem -pfhem -e "desc fhem.history"; then
 	echo "create tables"
@@ -55,7 +61,7 @@ echo '%dbconfig= ( connection => "mysql:database=fhem;host=db;port=3306", user =
         fi
 
 echo "start fhem"
-perl /opt/fhem/fhem.pl "${FHEM_CONFIG_PATH}fhem.cfg"
+perl "${FHEM_SCRIPT}" "${FHEM_CONFIG_PATH}fhem.cfg"
 
 while true; do
 	sleep 100;

@@ -26,6 +26,7 @@ services:
         ENABLE_TELNET: "true"
     ports:
       - 8083:8083
+      - 1883:1883
     deploy:           
       resources:      
         reservations: 
@@ -52,7 +53,11 @@ services:
         target: /backup
         volume:
           nocopy: true
-
+      - type: volume       
+        source: fhem-www
+        target: /opt/fhem/www    
+        volume:            
+          nocopy: true     
 networks:
   net:
     driver: overlay
@@ -89,3 +94,9 @@ volumes:
       o: bind                  
       type: none               
       device: /nfsdata/fhem/backup
+  fhem-www:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /nfsdata/fhem/www
