@@ -1,0 +1,77 @@
+version: '3.3'
+
+services:
+  db:
+    image: hypriot/rpi-mysql
+    environment:
+        MYSQL_ROOT_USER: root
+        MYSQL_ROOT_PASSWORD: Start2020
+        MYSQL_DATABASE: fhem
+        MYSQL_USER: fhem
+        MYSQL_PASSWORD: fhem
+    deploy:               
+      resources:          
+        reservations:     
+          cpus: '0.25'
+          memory: 64M    
+    volumes:
+      - type: volume
+        source: db-data
+        target: /var/lib/mysql
+  web:
+    image: 192.168.0.210:5000/fhem-web
+    ports:
+      - 8083:8083
+    deploy:           
+      resources:      
+        reservations: 
+          cpus: '0.25'
+          memory: 128M
+    volumes:
+      - type: volume
+        source: fhem-log
+        target: /opt/fhem/log
+        volume:
+          nocopy: true
+      - type: volume
+        source: fhem-conf
+        target: /opt/fhem/conf
+        volume:
+          nocopy: true
+      - type: volume          
+        source: fhem-data     
+        target: /opt/fhem/FHEM
+        volume:               
+          nocopy: true        
+
+networks:
+  net:
+    driver: overlay
+    attachable: true
+
+volumes:
+  db-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /nfsdata/fhem/mysql
+  fhem-data:
+    driver: local                       
+    driver_opts:                        
+      o: bind                           
+      type: none                        
+      device: /nfsdata/fhem/data
+  fhem-conf:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /nfsdata/fhem/conf
+  fhem-log:                     
+    driver: local
+    driver_opts:                
+      o: bind                    
+      type: none                 
+      device: /nfsdata/fhem/log 
+                                 
