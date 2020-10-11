@@ -19,7 +19,7 @@ services:
         source: db-data
         target: /var/lib/mysql
   web:
-    image: 192.168.0.210:5000/fhem-web
+    image: fabian1233/fhem-web
     environment:
         FHEM_BACKUP: "true"
         FHEM_AUTOSAVE: 1
