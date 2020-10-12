@@ -14,7 +14,7 @@ done
 ls "$FHEM_SCRIPT" 2>/dev/null || {
 	echo "perform initial setup"
 	tar xzf /fhem.tar.gz -C /tmp
-	rsync -a /tmp/fhem-*/ /opt/fhem/
+	rsync -a --ignore-existing /tmp/fhem-*/ /opt/fhem/
 	rm -r /tmp/fhem-6.0
 	ls "${FHEM_CONFIG_PATH}fhem.cfg" || {
 		echo "create new config"
