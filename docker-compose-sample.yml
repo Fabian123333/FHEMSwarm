@@ -36,7 +36,7 @@ services:
      - fhem-www:/opt/fhem/www
     networks:
      - backend
-     - proxy
+#     - proxy
     logging:
       driver: json-file
     deploy:
@@ -56,8 +56,8 @@ services:
 networks:
   backend:
     driver: overlay
-  proxy:
-    external: true
+#  proxy:
+#    external: true
 volumes:
   db-data:
     driver: local
