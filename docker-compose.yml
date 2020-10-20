@@ -2,10 +2,11 @@ version: '3.3'
 
 services:
   db:
-    image: hypriot/rpi-mysql
+    image: beercan1989/arm-mysql
     environment:
         MYSQL_ROOT_USER: root
-        MYSQL_ROOT_PASSWORD: Start2020
+#        MYSQL_ROOT_PASSWORD: Start2020
+        MYSQL_ALLOW_EMPTY_PASSWORD: 1
         MYSQL_DATABASE: fhem
         MYSQL_USER: fhem
         MYSQL_PASSWORD: fhem
@@ -27,6 +28,11 @@ services:
     ports:
       - 8083:8083
       - 1883:1883
+    labels:                                                        
+      - "traefik.enable=true"                                      
+      - "traefik.http.routers.fhem.rule=Host(`fhem.fschneider.at`)"
+      - "traefik.http.routers.fhem.entrypoints=web"                
+      - "traefik.http.routers.fhem.port=8083"                      
     deploy:           
       resources:      
         reservations: 
@@ -58,10 +64,10 @@ services:
         target: /opt/fhem/www    
         volume:            
           nocopy: true     
-networks:
-  net:
-    driver: overlay
-    attachable: true
+#networks:
+#  net:
+#    driver: overlay
+#    attachable: true
 
 volumes:
   db-data:
