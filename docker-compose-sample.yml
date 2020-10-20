@@ -1,0 +1,98 @@
+version: '3.3'
+services:
+  db:
+    image: beercan1989/arm-mysql:latest
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: '1'
+      MYSQL_DATABASE: fhem
+      MYSQL_PASSWORD: fhem
+      MYSQL_ROOT_USER: root
+      MYSQL_USER: fhem
+    volumes:
+     - db-data:/var/lib/mysql
+    networks:
+     - backend
+    logging:
+      driver: json-file
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.25'
+          memory: 64M
+  web:
+    image: fabian1233/fhem-web:latest
+    environment:
+      ENABLE_TELNET: 'true'
+      FHEM_AUTOSAVE: '1'
+      FHEM_BACKUP: 'true'
+    ports:
+     - 1883:1883
+     - 8083:8083
+    volumes:
+     - fhem-log:/opt/fhem/log
+     - fhem-conf:/opt/fhem/conf
+     - fhem-data:/opt/fhem/FHEM
+     - fhem-backup:/backup
+     - fhem-www:/opt/fhem/www
+    networks:
+     - backend
+     - proxy
+    logging:
+      driver: json-file
+    deploy:
+#      labels:
+#        traefik.enable: 'true'
+#        traefik.http.routers.fhem.entrypoints: web-secured
+#        traefik.http.routers.fhem.rule: Host(`<your domain>`)
+#        traefik.http.routers.fhem.tls.certresolver: mytlschallenge
+#        traefik.http.services.fhem.loadbalancer.server.port: '8083'
+      update_config:
+        parallelism: 2
+        delay: 15s
+      resources:
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+networks:
+  backend:
+    driver: overlay
+  proxy:
+    external: true
+volumes:
+  db-data:
+    driver: local
+    driver_opts:
+      device: /nfsdata/fhem/mysql
+      o: bind
+      type: none
+  fhem-backup:
+    driver: local
+    driver_opts:
+      device: /nfsdata/fhem/backup
+      o: bind
+      type: none
+  fhem-conf:
+    driver: local
+    driver_opts:
+      device: /nfsdata/fhem/conf
+      o: bind
+      type: none
+  fhem-data:
+    driver: local
+    driver_opts:
+      device: /nfsdata/fhem/data
+      o: bind
+      type: none
+  fhem-log:
+    driver: local
+    driver_opts:
+      device: /nfsdata/fhem/log
+      o: bind
+      type: none
+  fhem-www:
+    driver: local
+    driver_opts:
+      device: /nfsdata/fhem/www
+      o: bind
+      type: none
+
