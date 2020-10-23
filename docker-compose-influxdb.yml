@@ -8,6 +8,8 @@ services:
         INFLUXDB_ADMIN_PASSWORD: Start2020
         INFLUXDB_USER: fhem
         INFLUXDB_USER_PASSWORD: fhem
+    ports:
+      - 8086:8086
     networks:
       - net
     deploy:               
@@ -20,7 +22,7 @@ services:
         source: db-data
         target: /var/lib/influxdb
   web:
-    image: fabian1233/fhem-influxdb:arm64
+    image: fabian1233/fhem-influxdb:latest
     environment:
         FHEM_BACKUP: "true"
         FHEM_AUTOSAVE: 1

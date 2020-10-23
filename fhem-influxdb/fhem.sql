@@ -1,0 +1,3 @@
+CREATE DATABASE fhem;
+CREATE USER fhem WITH PASSWORD 'fhem';
+GRANT ALL ON fhem TO fhem;
