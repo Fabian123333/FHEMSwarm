@@ -2,14 +2,12 @@ version: '3.3'
 
 services:
   db:
-    image: beercan1989/arm-mysql
+    image: influxdb:1.8.3
+
     environment:
-        MYSQL_ROOT_USER: root
-#        MYSQL_ROOT_PASSWORD: Start2020
-        MYSQL_ALLOW_EMPTY_PASSWORD: 1
-        MYSQL_DATABASE: fhem
-        MYSQL_USER: fhem
-        MYSQL_PASSWORD: fhem
+        INFLUXDB_ADMIN_PASSWORD: Start2020
+        INFLUXDB_USER: fhem
+        INFLUXDB_USER_PASSWORD: fhem
     deploy:               
       resources:          
         reservations:     
@@ -18,7 +16,7 @@ services:
     volumes:
       - type: volume
         source: db-data
-        target: /var/lib/mysql
+        target: /var/lib/influxdb
   web:
     image: fabian1233/fhem-web:arm64
     environment:
@@ -31,7 +29,7 @@ services:
     deploy:           
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.fhem.rule=Host(`fhem.fschneider.at`)"
+        - "traefik.http.routers.fhem.rule=Host(`fhem-test.fschneider.at`)"
         - "traefik.http.routers.fhem.entrypoints=web"
         - "traefik.http.routers.fhem.port=8083"
       resources:      
@@ -75,34 +73,34 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: /nfsdata/fhem/mysql
+      device: /nfsdata/volumes/fhem_test/influxdb
   fhem-data:
     driver: local                       
     driver_opts:                        
       o: bind                           
       type: none                        
-      device: /nfsdata/fhem/data
+      device: /nfsdata/volumes/fhem_test/data
   fhem-conf:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /nfsdata/fhem/conf
+      device: /nfsdata/volumes/fhem_test/conf
   fhem-log:                     
     driver: local
     driver_opts:                
       o: bind                    
       type: none                 
-      device: /nfsdata/fhem/log 
+      device: /nfsdata/volumes/fhem_test/log 
   fhem-backup:                    
     driver: local              
     driver_opts:               
       o: bind                  
       type: none               
-      device: /nfsdata/fhem/backup
+      device: /nfsdata/volumes/fhem_test/backup
   fhem-www:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /nfsdata/fhem/www
+      device: /nfsdata/volumes/fhem_test/www
