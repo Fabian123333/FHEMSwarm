@@ -20,7 +20,7 @@ services:
         source: db-data
         target: /var/lib/influxdb
   web:
-    image: fabian1233/fhem-web:arm64
+    image: fabian1233/fhem-influxdb:arm64
     environment:
         FHEM_BACKUP: "true"
         FHEM_AUTOSAVE: 1
