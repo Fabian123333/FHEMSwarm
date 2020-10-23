@@ -8,6 +8,8 @@ services:
         INFLUXDB_ADMIN_PASSWORD: Start2020
         INFLUXDB_USER: fhem
         INFLUXDB_USER_PASSWORD: fhem
+    networks:
+      - net
     deploy:               
       resources:          
         reservations:     
@@ -23,6 +25,8 @@ services:
         FHEM_BACKUP: "true"
         FHEM_AUTOSAVE: 1
         ENABLE_TELNET: "true"
+    networks:
+      - net
     ports:
       - 8183:8083
 #      - 1883:1883
@@ -57,10 +61,10 @@ services:
         target: /opt/fhem/www    
         volume:            
           nocopy: true     
-#networks:
-#  net:
-#    driver: overlay
-#    attachable: true
+networks:
+  net:
+    driver: overlay
+    attachable: true
 
 volumes:
   db-data:
