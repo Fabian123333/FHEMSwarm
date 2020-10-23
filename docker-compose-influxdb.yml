@@ -24,14 +24,9 @@ services:
         FHEM_AUTOSAVE: 1
         ENABLE_TELNET: "true"
     ports:
-      - 8083:8083
-      - 1883:1883
+      - 8183:8083
+#      - 1883:1883
     deploy:           
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.fhem.rule=Host(`fhem-test.fschneider.at`)"
-        - "traefik.http.routers.fhem.entrypoints=web"
-        - "traefik.http.routers.fhem.port=8083"
       resources:      
         reservations: 
           cpus: '0.25'
